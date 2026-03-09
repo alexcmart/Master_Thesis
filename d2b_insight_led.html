@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regional Wellbeing — Insight-Led Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=Source+Sans+3:wght@300;400;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink:   #1a1510;
+    --mid:   #5a5040;
+    --faint: #9a9080;
+    --rule:  #ddd8cc;
+    --bg:    #faf8f4;
+    --warm:  #f2ede4;
+    --white: #ffffff;
+    --we:    #1d4e7a;
+    --la:    #1a6b3a;
+    --ea:    #8a5000;
+    --me:    #7a1a58;
+    --we-lt: #ddeaf5;
+    --la-lt: #d5eedd;
+    --ea-lt: #f5e8cc;
+    --me-lt: #f2d5e8;
+    --accent: #c8401a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .masthead {
+    background: var(--ink);
+    color: #f0ece0;
+    padding: 20px 44px 18px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+  .masthead-kicker {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #a09880;
+    margin-bottom: 8px;
+  }
+  .masthead-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: #f8f4ec;
+  }
+  .masthead-right {
+    text-align: right;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    padding: 4px 12px;
+    margin-bottom: 8px;
+  }
+  .masthead-meta {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    color: #706858;
+    line-height: 1.8;
+  }
+
+  /* SCENARIO */
+  .scenario {
+    background: var(--warm);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 44px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+  }
+  .sc-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .sc-text {
+    font-size: 12.5px;
+    color: var(--mid);
+    line-height: 1.55;
+  }
+  .sc-divider { width: 1px; height: 36px; background: var(--rule); }
+
+  /* PAGE BODY */
+  .page { max-width: 1060px; margin: 0 auto; padding: 32px 44px 60px; }
+
+  /* FINDING BLOCK — the core pattern */
+  .finding {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .finding:last-of-type { border-bottom: none; }
+
+  .finding-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 18px;
+  }
+  .finding-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--faint);
+    padding-top: 5px;
+    white-space: nowrap;
+  }
+  .finding-statement {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .finding-statement em {
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .finding-body {
+    display: grid;
+    gap: 16px;
+  }
+  .finding-body.col2 { grid-template-columns: 3fr 2fr; }
+  .finding-body.col3 { grid-template-columns: 1fr 1fr 1fr; }
+  .finding-body.col-wide { grid-template-columns: 2fr 1fr; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 16px 18px;
+  }
+  .chart-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+
+  /* ANNOTATION PANEL */
+  .annotation {
+    background: var(--warm);
+    border-left: 3px solid var(--rule);
+    padding: 14px 16px;
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.65;
+  }
+  .annotation strong { color: var(--ink); font-weight: 600; }
+
+  /* REGION TAG */
+  .rtag {
+    display: inline-block;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .rtag.we { background: var(--we-lt); color: var(--we); }
+  .rtag.la { background: var(--la-lt); color: var(--la); }
+  .rtag.ea { background: var(--ea-lt); color: var(--ea); }
+  .rtag.me { background: var(--me-lt); color: var(--me); }
+
+  /* PROFILE CARDS (for finding 3) */
+  .profile {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+  }
+  .profile-region {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid;
+  }
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #f0ece4;
+    font-size: 11px;
+  }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-dim { color: var(--mid); }
+  .profile-val {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .profile-bar {
+    width: 50px;
+    height: 3px;
+    background: #e8e4dc;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-left: 8px;
+  }
+  .profile-bar-fill { height: 100%; border-radius: 2px; }
+  .highlight { background: #fef3cc; border-radius: 2px; padding: 0 2px; }
+
+  /* FOOTNOTE */
+  .fnote {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    color: var(--faint);
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  /* QUESTIONS */
+  .q-section {
+    background: var(--ink);
+    color: #f0ece0;
+    padding: 26px 32px;
+    margin-top: 32px;
+  }
+  .q-eyebrow {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #706858;
+    margin-bottom: 18px;
+  }
+  .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .q-num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #706858;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    line-height: 1.35;
+    margin-bottom: 12px;
+    color: #f0ece0;
+  }
+  .q-opts { display: flex; gap: 7px; flex-wrap: wrap; }
+  .q-opt {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    padding: 5px 13px;
+    border: 1px solid rgba(255,255,255,.15);
+    color: #c0b8a8;
+    background: rgba(255,255,255,.05);
+  }
+  .q-opt.we { border-color: #5090c0; color: #90c0e8; background: rgba(29,78,122,.3); }
+  .q-opt.la { border-color: #50a870; color: #80d0a0; background: rgba(26,107,58,.3); }
+  .q-opt.ea { border-color: #c09050; color: #e0c080; background: rgba(138,80,0,.3); }
+  .q-opt.me { border-color: #b060a0; color: #d890c8; background: rgba(122,26,88,.3); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div>
+    <div class="masthead-kicker">World Happiness Report 2025 · Regional Investment Analysis</div>
+    <div class="masthead-title">Four regions.<br>Six dimensions. One fund.</div>
+  </div>
+  <div class="masthead-right">
+    <div class="badge">DASHBOARD II — B</div><br>
+    <div class="masthead-meta">
+      Gallup World Poll · 2011–2024<br>
+      147 countries · 4 regions · n = 51
+    </div>
+  </div>
+</div>
+
+<div class="scenario">
+  <div class="sc-label">Scenario</div>
+  <div class="sc-text">You are an advisor to a global development foundation allocating a <strong>€200M wellbeing investment fund</strong> across four world regions. Read the findings below, then answer the two questions at the end.</div>
+  <div class="sc-divider"></div>
+  <div style="font-family:'Source Code Pro',monospace;font-size:9.5px;color:var(--faint);white-space:nowrap;line-height:2">
+    🌍 W. Europe · 16 countries<br>
+    🌎 Latin America · 17 countries<br>
+    🌏 East Asia · 12 countries<br>
+    🌍 Middle East &amp; N. Africa · 15 countries
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- FINDING 1 -->
+  <div class="finding">
+    <div class="finding-header">
+      <div class="finding-num">Finding 01 /</div>
+      <div class="finding-statement">Western Europe leads on overall happiness — but its score has been <em>declining</em> for four consecutive years.</div>
+    </div>
+    <div class="finding-body col2">
+      <div class="chart-card">
+        <div class="chart-label">Average happiness score by region · 2024 · Scale 0–10</div>
+        <canvas id="barChart" height="160"></canvas>
+        <div class="fnote">Global average score in 2024: 5.48 · Three of four regions sit above the global average</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="annotation">
+          <strong>W. Europe peaked at 7.13 in 2020</strong> and has fallen in each year since — reaching 6.97 in 2024. This is the first time the region has dropped below 7.00 since 2016.
+        </div>
+        <div class="annotation">
+          <strong>Latin America (6.33) scores higher than its wealth alone would predict.</strong> It ranks 3rd on GDP per capita among the four regions, yet 2nd on happiness — suggesting non-economic drivers are strong.
+        </div>
+        <div class="annotation">
+          <span class="rtag me">Middle East &amp; N. Africa</span> scores 1.64 points below W. Europe — the largest gap between any two adjacent regions. Three of four regions sit above the global average of 5.48.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINDING 2 -->
+  <div class="finding">
+    <div class="finding-header">
+      <div class="finding-num">Finding 02 /</div>
+      <div class="finding-statement"><em>East Asia</em> has gained more ground than any other region since 2011 — a rise of +0.62 points over 13 years.</div>
+    </div>
+    <div class="finding-body col-wide">
+      <div class="chart-card">
+        <div class="chart-label">Happiness score trend · 2011–2024 · Regional averages</div>
+        <canvas id="trendChart" height="180"></canvas>
+        <div class="fnote">2013 not available in WHR · Middle East &amp; N. Africa (MENA) shown as dashed line</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="annotation">
+          <strong>East Asia (+0.62)</strong> shows the most consistent upward trajectory. It has improved in every single year since 2019, and closed the gap with Latin America from 0.49 points in 2011 to just 0.21 points in 2024.
+        </div>
+        <div class="annotation">
+          <strong>Middle East &amp; N. Africa (MENA) (−0.28)</strong> is the only region to end 2024 lower than it started in 2011. It reached a low of 5.11 in 2022 — reflecting regional instability — before a partial recovery to 5.33.
+        </div>
+        <div class="annotation">
+          <strong>Latin America (+0.34)</strong> showed resilience: after a dip during 2020–21, it recovered strongly and now sits at its highest point since records began.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINDING 3 -->
+  <div class="finding">
+    <div class="finding-header">
+      <div class="finding-num">Finding 03 /</div>
+      <div class="finding-statement">Each region leads on a different dimension — and <em>trails</em> on a different one too.</div>
+    </div>
+    <div class="finding-body col3" style="grid-template-columns:repeat(4,1fr)">
+      <!-- WE -->
+      <div class="profile">
+        <div class="profile-region" style="color:var(--we);border-color:var(--we)">🌍 W. Europe</div>
+        <div class="profile-row"><span class="profile-dim">GDP p.c.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:100%;background:var(--we)"></div></div></span><span class="profile-val" style="color:var(--we)">1.81★</span></div>
+        <div class="profile-row"><span class="profile-dim">Social</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:100%;background:var(--we)"></div></div></span><span class="profile-val" style="color:var(--we)">1.65★</span></div>
+        <div class="profile-row"><span class="profile-dim">Health</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:100%;background:var(--we)"></div></div></span><span class="profile-val" style="color:var(--we)">0.85★</span></div>
+        <div class="profile-row"><span class="profile-dim">Freedom</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:100%;background:var(--we)"></div></div></span><span class="profile-val" style="color:var(--we)">0.88★</span></div>
+        <div class="profile-row"><span class="profile-dim">Corrupt.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:100%;background:var(--we)"></div></div></span><span class="profile-val" style="color:var(--we)">0.32★</span></div>
+        <div class="profile-row"><span class="profile-dim">Generosity</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:50%;background:#ccc"></div></div></span><span class="profile-val highlight">0.14</span></div>
+      </div>
+      <!-- LA -->
+      <div class="profile">
+        <div class="profile-region" style="color:var(--la);border-color:var(--la)">🌎 Latin America</div>
+        <div class="profile-row"><span class="profile-dim">GDP p.c.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:75%;background:var(--la)"></div></div></span><span class="profile-val">1.36</span></div>
+        <div class="profile-row"><span class="profile-dim">Social</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:89%;background:var(--la)"></div></div></span><span class="profile-val">1.47</span></div>
+        <div class="profile-row"><span class="profile-dim">Health</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:65%;background:var(--la)"></div></div></span><span class="profile-val">0.55</span></div>
+        <div class="profile-row"><span class="profile-dim">Freedom</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:97%;background:var(--la)"></div></div></span><span class="profile-val">0.85</span></div>
+        <div class="profile-row"><span class="profile-dim">Corrupt.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:34%;background:#ccc"></div></div></span><span class="profile-val highlight">0.11</span></div>
+        <div class="profile-row"><span class="profile-dim">Generosity</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:22%;background:var(--la)"></div></div></span><span class="profile-val">0.07</span></div>
+      </div>
+      <!-- EA -->
+      <div class="profile">
+        <div class="profile-region" style="color:var(--ea);border-color:var(--ea)">🌏 East Asia</div>
+        <div class="profile-row"><span class="profile-dim">GDP p.c.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:84%;background:var(--ea)"></div></div></span><span class="profile-val">1.52</span></div>
+        <div class="profile-row"><span class="profile-dim">Social</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:90%;background:var(--ea)"></div></div></span><span class="profile-val">1.48</span></div>
+        <div class="profile-row"><span class="profile-dim">Health</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:75%;background:var(--ea)"></div></div></span><span class="profile-val">0.64</span></div>
+        <div class="profile-row"><span class="profile-dim">Freedom</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:95%;background:var(--ea)"></div></div></span><span class="profile-val">0.84</span></div>
+        <div class="profile-row"><span class="profile-dim">Corrupt.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:50%;background:var(--ea)"></div></div></span><span class="profile-val">0.16</span></div>
+        <div class="profile-row"><span class="profile-dim">Generosity</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:50%;background:var(--ea)"></div></div></span><span class="profile-val" style="color:var(--ea)">0.14★</span></div>
+      </div>
+      <!-- MENA -->
+      <div class="profile">
+        <div class="profile-region" style="color:var(--me);border-color:var(--me)">🌍 Middle East &amp; N. Africa</div>
+        <div class="profile-row"><span class="profile-dim">GDP p.c.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:77%;background:var(--me)"></div></div></span><span class="profile-val">1.40</span></div>
+        <div class="profile-row"><span class="profile-dim">Social</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:76%;background:var(--me)"></div></div></span><span class="profile-val">1.25</span></div>
+        <div class="profile-row"><span class="profile-dim">Health</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:71%;background:var(--me)"></div></div></span><span class="profile-val">0.60</span></div>
+        <div class="profile-row"><span class="profile-dim">Freedom</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:75%;background:#ccc"></div></div></span><span class="profile-val highlight">0.66</span></div>
+        <div class="profile-row"><span class="profile-dim">Corrupt.</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:44%;background:var(--me)"></div></div></span><span class="profile-val">0.14</span></div>
+        <div class="profile-row"><span class="profile-dim">Generosity</span><span><div class="profile-bar"><div class="profile-bar-fill" style="width:31%;background:var(--me)"></div></div></span><span class="profile-val">0.10</span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px" class="annotation">
+      <strong>★ = highest score among the four regions.</strong> <span class="highlight">Highlighted values</span> indicate a region's weakest dimension relative to the others. W. Europe leads on five of six dimensions — yet its overall score is falling. Middle East &amp; N. Africa's weakest point is <strong>Freedom (0.66)</strong>, the largest gap vs. the regional leader (0.22 below W. Europe).
+    </div>
+  </div>
+
+  <!-- FINDING 4 -->
+  <div class="finding">
+    <div class="finding-header">
+      <div class="finding-num">Finding 04 /</div>
+      <div class="finding-statement">Middle East &amp; N. Africa (MENA) has a <em>higher GDP</em> than Latin America — yet scores 1.0 point lower in happiness.</div>
+    </div>
+    <div class="finding-body col2">
+      <div class="chart-card">
+        <div class="chart-label">GDP score vs. Happiness score · 2024 · Bubble = relative gap from expected</div>
+        <canvas id="scatterChart" height="200"></canvas>
+        <div class="fnote">Dashed diagonal = expected relationship if GDP perfectly predicted happiness · Points above line = happier than wealth predicts · Points below = less happy than wealth predicts</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="annotation" style="border-left-color:var(--la)">
+          <span class="rtag la">Latin America</span> sits <strong>above</strong> the expected line — social cohesion and personal freedom compensate for relatively low wealth.
+        </div>
+        <div class="annotation" style="border-left-color:var(--we)">
+          <span class="rtag we">W. Europe</span> also sits above the line — institutional trust and low corruption amplify wellbeing beyond what GDP alone would generate.
+        </div>
+        <div class="annotation" style="border-left-color:var(--me)">
+          <span class="rtag me">Middle East &amp; N. Africa</span> sits <strong>well below</strong> the line despite a GDP score comparable to Latin America. Freedom (0.66) is the region's lowest dimension and its largest gap vs. the leader.
+        </div>
+        <div class="annotation" style="border-left-color:var(--ea)">
+          <span class="rtag ea">East Asia</span> sits close to the expected line — GDP and happiness are broadly aligned. Its strongest relative asset is consistent upward momentum.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUESTIONS -->
+<div class="q-section">
+  <div style="max-width:1060px;margin:0 auto;padding:0 44px">
+    <div class="q-eyebrow">Decision Questions — Based on the findings above</div>
+    <div class="q-grid">
+      <div>
+        <div class="q-num">Question 1 of 2</div>
+        <div class="q-text">Which region should receive the largest share of the €200M investment fund?</div>
+        <div class="q-opts">
+          <span class="q-opt we">🌍 Western Europe</span>
+          <span class="q-opt la">🌎 Latin America</span>
+          <span class="q-opt ea">🌏 East Asia</span>
+          <span class="q-opt me">🌍 Middle East &amp; N. Africa</span>
+        </div>
+      </div>
+      <div>
+        <div class="q-num">Question 2 of 2</div>
+        <div class="q-text">Which region shows the strongest potential for long-term wellbeing improvement?</div>
+        <div class="q-opts">
+          <span class="q-opt we">🌍 Western Europe</span>
+          <span class="q-opt la">🌎 Latin America</span>
+          <span class="q-opt ea">🌏 East Asia</span>
+          <span class="q-opt me">🌍 Middle East &amp; N. Africa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WE = '#1d4e7a', LA = '#1a6b3a', EA = '#8a5000', ME = '#7a1a58';
+
+// BAR CHART
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['W. Europe','Latin America','East Asia','Middle East & N. Africa'],
+    datasets: [{
+      data: [6.97, 6.33, 6.12, 5.33],
+      backgroundColor: [WE, LA, EA, ME],
+      borderWidth: 0,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false },
+      annotation: {} },
+    scales: {
+      x: { min: 4, max: 8, ticks: { font: { family: 'Source Code Pro', size: 9 }, color: '#9a9080' }, grid: { color: '#f0ece4' } },
+      y: { ticks: { font: { family: 'Source Sans 3', size: 11 }, color: '#1a1510' }, grid: { display: false } }
+    }
+  }
+});
+
+// TREND CHART
+const years = [2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [
+      { label: 'W. Europe', data: [7.06,7.00,6.94,6.93,6.93,6.98,7.05,7.11,7.13,7.11,7.05,6.98,6.97],
+        borderColor: WE, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 2.5, tension: 0.3 },
+      { label: 'Latin America', data: [5.98,6.17,6.22,6.20,6.16,6.15,6.16,6.16,6.08,6.02,6.03,6.19,6.33],
+        borderColor: LA, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 2.5, tension: 0.3 },
+      { label: 'East Asia', data: [5.49,5.68,5.75,5.81,5.82,5.79,5.69,5.77,5.83,5.90,5.95,6.04,6.12],
+        borderColor: EA, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 2.5, tension: 0.3 },
+      { label: 'MENA', data: [5.61,5.51,5.52,5.61,5.57,5.51,5.46,5.42,5.37,5.27,5.11,5.31,5.33],
+        borderColor: ME, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, tension: 0.3, borderDash: [5,3] }
+    ]
+  },
+  options: {
+    plugins: { legend: { position:'bottom', labels: { font:{family:'Source Code Pro',size:9}, color:'#9a9080', boxWidth:14, padding:12 } } },
+    scales: {
+      x: { ticks: { font:{family:'Source Code Pro',size:8}, color:'#9a9080', maxRotation:45 }, grid: { color:'#f0ece4' } },
+      y: { min:4.8, max:7.5, ticks: { font:{family:'Source Code Pro',size:9}, color:'#9a9080', stepSize:.5 }, grid: { color:'#f0ece4' } }
+    }
+  }
+});
+
+// SCATTER / GDP vs HAPPINESS
+new Chart(document.getElementById('scatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      { label:'W. Europe',  data:[{x:1.81,y:6.97}], backgroundColor: WE, pointRadius:14, pointHoverRadius:16 },
+      { label:'Latin America', data:[{x:1.36,y:6.33}], backgroundColor: LA, pointRadius:14, pointHoverRadius:16 },
+      { label:'East Asia',  data:[{x:1.52,y:6.12}], backgroundColor: EA, pointRadius:14, pointHoverRadius:16 },
+      { label:'MENA',       data:[{x:1.40,y:5.33}], backgroundColor: ME, pointRadius:14, pointHoverRadius:16 },
+      { label:'_expected',  data:[{x:1.2,y:5.5},{x:1.9,y:7.4}],
+        type:'line', borderColor:'#ccc8bc', borderDash:[5,4], borderWidth:1.5,
+        pointRadius:0, backgroundColor:'transparent', fill:false }
+    ]
+  },
+  options: {
+    plugins: {
+      legend: { display: true, position:'bottom',
+        labels: { font:{family:'Source Code Pro',size:9}, color:'#9a9080', boxWidth:12, padding:10,
+          filter: item => item.text !== '_expected' } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: GDP ${ctx.parsed.x} · Happiness ${ctx.parsed.y}`
+        }
+      }
+    },
+    scales: {
+      x: { min:1.1, max:2.0, title:{ display:true, text:'GDP per capita score', font:{family:'Source Code Pro',size:9}, color:'#9a9080' },
+           ticks:{ font:{family:'Source Code Pro',size:9}, color:'#9a9080' }, grid:{ color:'#f0ece4' } },
+      y: { min:4.8, max:7.6, title:{ display:true, text:'Happiness score', font:{family:'Source Code Pro',size:9}, color:'#9a9080' },
+           ticks:{ font:{family:'Source Code Pro',size:9}, color:'#9a9080', stepSize:.5 }, grid:{ color:'#f0ece4' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

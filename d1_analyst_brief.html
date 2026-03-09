@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regional Wellbeing Analysis — Investment Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink:    #1a1a1a;
+    --mid:    #5a5a5a;
+    --faint:  #9a9a9a;
+    --rule:   #e0e0e0;
+    --bg:     #f7f6f3;
+    --white:  #ffffff;
+    --we:     #1d4e7a;
+    --la:     #1a6b3a;
+    --ea:     #7a4500;
+    --me:     #6b1a50;
+    --we-lt:  #ddeaf5;
+    --la-lt:  #d5eedd;
+    --ea-lt:  #f5e8d5;
+    --me-lt:  #eedde8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* PAGE WRAPPER */
+  .page {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    border-top: 3px solid var(--ink);
+    padding-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    margin-bottom: 20px;
+  }
+  .doc-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 6px;
+  }
+  .doc-title {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .doc-meta {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--faint);
+    line-height: 1.7;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    padding: 3px 10px;
+    margin-bottom: 8px;
+  }
+
+  /* SCENARIO BAR */
+  .scenario {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--ink);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .scenario-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    white-space: nowrap;
+    padding-top: 1px;
+  }
+  .scenario-text {
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 22px 0;
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+
+  /* SCORECARDS */
+  .scorecard-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .scorecard {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+  }
+  .sc-flag {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .sc-region {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+  .sc-countries {
+    font-size: 9px;
+    color: var(--faint);
+    margin-bottom: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .sc-score-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .sc-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .sc-denom {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .sc-rank {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--faint);
+  }
+  .sc-bar-track {
+    height: 3px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .sc-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  /* MAIN GRID */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 18px 20px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .card-sub {
+    font-size: 10px;
+    color: var(--faint);
+    margin-bottom: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* BOTTOM GRID */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { border-bottom: 1.5px solid var(--ink); }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 0 8px 7px;
+    text-align: right;
+    font-weight: 400;
+  }
+  th:first-child { text-align: left; padding-left: 0; }
+  td {
+    padding: 8px 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-align: right;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  td:first-child {
+    text-align: left;
+    padding-left: 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  tr:last-child td { border-bottom: none; }
+  .best { font-weight: 600; }
+  .up { color: #1a6b3a; }
+  .dn { color: #9a2020; }
+  .region-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 7px;
+    vertical-align: middle;
+  }
+
+  /* QUESTIONS */
+  .q-section {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--ink);
+    padding: 18px 20px;
+  }
+  .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .q-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 5px;
+  }
+  .q-text {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .q-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .q-opt {
+    font-size: 10px;
+    padding: 4px 11px;
+    border: 1px solid var(--rule);
+    color: var(--mid);
+    background: var(--bg);
+    font-weight: 500;
+    cursor: default;
+  }
+  .q-opt.we { border-color: var(--we); color: var(--we); background: var(--we-lt); }
+  .q-opt.la { border-color: var(--la); color: var(--la); background: var(--la-lt); }
+  .q-opt.ea { border-color: var(--ea); color: var(--ea); background: var(--ea-lt); }
+  .q-opt.me { border-color: var(--me); color: var(--me); background: var(--me-lt); }
+
+  /* FOOTNOTE */
+  .footnote {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--faint);
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="doc-type">Investment Analysis · World Happiness Report 2025</div>
+      <div class="doc-title">Regional Wellbeing Data<br>2011–2024</div>
+    </div>
+    <div class="doc-meta">
+      <div class="badge">DASHBOARD I</div><br>
+      Source: Gallup World Poll<br>
+      Coverage: 147 countries<br>
+      Regions: 4 · n = 51 countries
+    </div>
+  </div>
+
+  <!-- SCENARIO -->
+  <div class="scenario">
+    <div class="scenario-label">Scenario</div>
+    <div class="scenario-text">You are an advisor to a global development foundation allocating a <strong>€200M wellbeing investment fund</strong> across four world regions. The foundation supports multi-year national programmes aimed at improving long-term quality of life. Review the data below and answer both questions at the end of this brief.</div>
+  </div>
+
+  <!-- SECTION: SNAPSHOT -->
+  <div class="section-label">01 — Regional Snapshot · 2024 Average Happiness Score</div>
+  <div class="scorecard-row">
+    <div class="scorecard">
+      <div class="sc-flag">🌍</div>
+      <div class="sc-region">Western Europe</div>
+      <div class="sc-countries">16 countries · FIN, DEU, FRA +13</div>
+      <div class="sc-score-row">
+        <span class="sc-score" style="color:var(--we)">6.97</span>
+        <span class="sc-denom">/ 10</span>
+      </div>
+      <div class="sc-rank">Global rank: #1 region</div>
+      <div class="sc-bar-track" style="margin-top:8px"><div class="sc-bar-fill" style="width:100%;background:var(--we)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-flag">🌎</div>
+      <div class="sc-region">Latin America</div>
+      <div class="sc-countries">17 countries · BRA, MEX, ARG +14</div>
+      <div class="sc-score-row">
+        <span class="sc-score" style="color:var(--la)">6.33</span>
+        <span class="sc-denom">/ 10</span>
+      </div>
+      <div class="sc-rank">2nd of 4 regions</div>
+      <div class="sc-bar-track" style="margin-top:8px"><div class="sc-bar-fill" style="width:90.8%;background:var(--la)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-flag">🌏</div>
+      <div class="sc-region">East Asia</div>
+      <div class="sc-countries">12 countries · JPN, SGP, CHN +9</div>
+      <div class="sc-score-row">
+        <span class="sc-score" style="color:var(--ea)">6.12</span>
+        <span class="sc-denom">/ 10</span>
+      </div>
+      <div class="sc-rank">3rd of 4 regions</div>
+      <div class="sc-bar-track" style="margin-top:8px"><div class="sc-bar-fill" style="width:87.8%;background:var(--ea)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-flag">🌍</div>
+      <div class="sc-region">Middle East & N. Africa</div>
+      <div class="sc-countries">15 countries · UAE, ISR, MAR +12</div>
+      <div class="sc-score-row">
+        <span class="sc-score" style="color:var(--me)">5.33</span>
+        <span class="sc-denom">/ 10</span>
+      </div>
+      <div class="sc-rank">4th of 4 regions</div>
+      <div class="sc-bar-track" style="margin-top:8px"><div class="sc-bar-fill" style="width:76.5%;background:var(--me)"></div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION: DIMENSIONS + TABLE -->
+  <div class="section-label">02 — Wellbeing Dimensions & Historical Trend</div>
+  <div class="main-grid">
+    <!-- Radar chart -->
+    <div class="card">
+      <div class="card-title">Six Wellbeing Dimensions by Region — 2024</div>
+      <div class="card-sub">Average regional score per dimension · Gallup World Poll methodology</div>
+      <canvas id="radarChart" height="220"></canvas>
+      <div class="footnote">MENA = Middle East &amp; North Africa · Dimensions reflect each factor's estimated contribution to the overall happiness score · Higher = greater contribution · Low Corruption = perception of absence of corruption</div>
+    </div>
+
+    <!-- Summary table -->
+    <div class="card">
+      <div class="card-title">Dimension Scores Summary — 2024</div>
+      <div class="card-sub">★ = highest score among four regions</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>W.EU</th>
+            <th>LAT</th>
+            <th>E.AS</th>
+            <th>M.East &amp; N.Africa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GDP p.c.</td>
+            <td class="best" style="color:var(--we)">1.81★</td>
+            <td>1.36</td>
+            <td>1.52</td>
+            <td>1.40</td>
+          </tr>
+          <tr>
+            <td>Social support</td>
+            <td class="best" style="color:var(--we)">1.65★</td>
+            <td>1.47</td>
+            <td>1.48</td>
+            <td>1.25</td>
+          </tr>
+          <tr>
+            <td>Health (life exp.)</td>
+            <td class="best" style="color:var(--we)">0.85★</td>
+            <td>0.55</td>
+            <td>0.64</td>
+            <td>0.60</td>
+          </tr>
+          <tr>
+            <td>Freedom</td>
+            <td class="best" style="color:var(--we)">0.88★</td>
+            <td>0.85</td>
+            <td>0.84</td>
+            <td>0.66</td>
+          </tr>
+          <tr>
+            <td>Generosity</td>
+            <td>0.14</td>
+            <td>0.07</td>
+            <td class="best" style="color:var(--ea)">0.14★</td>
+            <td>0.10</td>
+          </tr>
+          <tr>
+            <td>Low Corruption</td>
+            <td class="best" style="color:var(--we)">0.32★</td>
+            <td>0.11</td>
+            <td>0.16</td>
+            <td>0.14</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footnote">Generosity: W.EU and E.AS tied at 0.14, both marked ★</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Trend + Change table -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-title">Happiness Score Trend — 2011 to 2024</div>
+      <div class="card-sub">Regional averages · 13-year period · Gallup World Poll</div>
+      <canvas id="trendChart" height="170"></canvas>
+      <div class="footnote">Note: 2013 data not available in WHR · Values shown for tracked years only</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Score Change Summary — 2011 vs. 2024</div>
+      <div class="card-sub">Absolute change in avg. happiness score over 13 years</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>2011</th>
+            <th>2024</th>
+            <th>Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="region-dot" style="background:var(--we)"></span>Western Europe</td>
+            <td>7.06</td>
+            <td class="best" style="color:var(--we)">6.97</td>
+            <td class="dn">−0.09</td>
+          </tr>
+          <tr>
+            <td><span class="region-dot" style="background:var(--la)"></span>Latin America</td>
+            <td>5.98</td>
+            <td style="color:var(--la)">6.33</td>
+            <td class="up">+0.34</td>
+          </tr>
+          <tr>
+            <td><span class="region-dot" style="background:var(--ea)"></span>East Asia</td>
+            <td>5.49</td>
+            <td style="color:var(--ea)">6.12</td>
+            <td class="up best">+0.62</td>
+          </tr>
+          <tr>
+            <td><span class="region-dot" style="background:var(--me)"></span>Middle East & N. Africa</td>
+            <td>5.61</td>
+            <td style="color:var(--me)">5.33</td>
+            <td class="dn">−0.28</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:16px">
+        <div class="card-sub" style="margin-bottom:8px">Largest single-dimension gap vs. region leading</div>
+        <table>
+          <thead>
+            <tr><th>Region</th><th>Weakest dimension</th><th>Gap to leader</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="region-dot" style="background:var(--we)"></span>W. Europe</td><td>Generosity</td><td>0.14 (tied ★)</td></tr>
+            <tr><td><span class="region-dot" style="background:var(--la)"></span>Latin America</td><td>Low Corruption</td><td>−0.21 vs. W.EU</td></tr>
+            <tr><td><span class="region-dot" style="background:var(--ea)"></span>East Asia</td><td>Low Corruption</td><td>−0.16 vs. W.EU</td></tr>
+            <tr><td><span class="region-dot" style="background:var(--me)"></span>Middle East &amp; N. Africa</td><td>Freedom</td><td>−0.22 vs. W.EU</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="footnote">Change = 2024 avg. minus 2011 avg. across all tracked countries per region</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- QUESTIONS -->
+  <div class="q-section">
+    <div class="section-label" style="margin-bottom:14px">03 — Decision Questions</div>
+    <div class="q-grid">
+      <div>
+        <div class="q-num">Question 1 of 2</div>
+        <div class="q-text">Based on the data above, which region should receive the <strong>largest share</strong> of the €200M investment fund?</div>
+        <div class="q-opts">
+          <span class="q-opt we">🌍 Western Europe</span>
+          <span class="q-opt la">🌎 Latin America</span>
+          <span class="q-opt ea">🌏 East Asia</span>
+          <span class="q-opt me">🌍 Middle East & N. Africa</span>
+        </div>
+      </div>
+      <div>
+        <div class="q-num">Question 2 of 2</div>
+        <div class="q-text">Which region shows the <strong>strongest potential for long-term wellbeing improvement</strong>?</div>
+        <div class="q-opts">
+          <span class="q-opt we">🌍 Western Europe</span>
+          <span class="q-opt la">🌎 Latin America</span>
+          <span class="q-opt ea">🌏 East Asia</span>
+          <span class="q-opt me">🌍 Middle East & N. Africa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// RADAR CHART
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+  type: 'radar',
+  data: {
+    labels: ['GDP per Capita', 'Social Support', 'Health', 'Freedom', 'Generosity', 'Low Corruption'],
+    datasets: [
+      { label: 'W. Europe', data: [1.81, 1.65, 0.85, 0.88, 0.14, 0.32],
+        borderColor: '#1d4e7a', backgroundColor: 'rgba(29,78,122,0.08)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#1d4e7a' },
+      { label: 'Latin America', data: [1.36, 1.47, 0.55, 0.85, 0.07, 0.11],
+        borderColor: '#1a6b3a', backgroundColor: 'rgba(26,107,58,0.08)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#1a6b3a' },
+      { label: 'East Asia', data: [1.52, 1.48, 0.64, 0.84, 0.14, 0.16],
+        borderColor: '#7a4500', backgroundColor: 'rgba(122,69,0,0.08)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#7a4500' },
+      { label: 'MENA', data: [1.40, 1.25, 0.60, 0.66, 0.10, 0.14],
+        borderColor: '#6b1a50', backgroundColor: 'rgba(107,26,80,0.08)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#6b1a50',
+        borderDash: [4, 2] }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { family: 'IBM Plex Mono', size: 9 }, boxWidth: 12, padding: 12, color: '#5a5a5a' }
+      }
+    },
+    scales: {
+      r: {
+        min: 0, max: 2.0,
+        ticks: { stepSize: 0.5, font: { family: 'IBM Plex Mono', size: 8 }, color: '#9a9a9a', backdropColor: 'transparent' },
+        grid: { color: '#e8e8e8' },
+        pointLabels: { font: { family: 'IBM Plex Sans', size: 9 }, color: '#5a5a5a' }
+      }
+    }
+  }
+});
+
+// TREND LINE CHART
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const years = [2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+new Chart(trendCtx, {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [
+      { label: 'W. Europe', data: [7.06,7.00,6.94,6.93,6.93,6.98,7.05,7.11,7.13,7.11,7.05,6.98,6.97],
+        borderColor: '#1d4e7a', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#1d4e7a', tension: 0.3 },
+      { label: 'Latin America', data: [5.98,6.17,6.22,6.20,6.16,6.15,6.16,6.16,6.08,6.02,6.03,6.19,6.33],
+        borderColor: '#1a6b3a', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#1a6b3a', tension: 0.3 },
+      { label: 'East Asia', data: [5.49,5.68,5.75,5.81,5.82,5.79,5.69,5.77,5.83,5.90,5.95,6.04,6.12],
+        borderColor: '#7a4500', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#7a4500', tension: 0.3 },
+      { label: 'MENA', data: [5.61,5.51,5.52,5.61,5.57,5.51,5.46,5.42,5.37,5.27,5.11,5.31,5.33],
+        borderColor: '#6b1a50', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#6b1a50', tension: 0.3,
+        borderDash: [5, 3] }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { family: 'IBM Plex Mono', size: 9 }, boxWidth: 12, padding: 10, color: '#5a5a5a' }
+      }
+    },
+    scales: {
+      x: { ticks: { font: { family: 'IBM Plex Mono', size: 8 }, color: '#9a9a9a', maxRotation: 45 }, grid: { color: '#f0f0f0' } },
+      y: { min: 4.8, max: 7.5, ticks: { font: { family: 'IBM Plex Mono', size: 9 }, color: '#9a9a9a', stepSize: 0.5 }, grid: { color: '#f0f0f0' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
