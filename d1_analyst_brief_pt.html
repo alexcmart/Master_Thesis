@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bem-Estar Regional — Análise de Investimento</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Serif:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink:#1a1a1a; --mid:#5a5a5a; --faint:#9a9a9a;
+    --rule:#e0e0e0; --bg:#f7f6f3; --white:#fff;
+    --we:#1d4e7a; --la:#1a6b3a; --ea:#7a4500; --me:#6b1a50;
+    --we-lt:#ddeaf5; --la-lt:#d5eedd; --ea-lt:#f5e8d5; --me-lt:#eedde8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55;}
+
+  /* ── HEADER ── */
+  .header{background:var(--white);border-top:4px solid var(--ink);border-bottom:1px solid var(--rule);padding:14px 16px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .hd-left{}
+  .doc-type{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;}
+  .doc-title{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;line-height:1.2;}
+  .badge{flex-shrink:0;background:var(--ink);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;padding:4px 10px;margin-top:2px;white-space:nowrap;}
+
+  /* ── SCENARIO ── */
+  .scenario{background:var(--white);border-left:4px solid var(--ink);border-bottom:1px solid var(--rule);padding:12px 16px;font-size:13px;line-height:1.65;color:var(--mid);}
+  .sc-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;}
+
+  /* ── PAGE ── */
+  .page{padding:14px 14px 60px;display:flex;flex-direction:column;gap:14px;}
+
+  /* ── SECTION HEADER ── */
+  .sec-hd{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);padding-bottom:8px;border-bottom:1px solid var(--rule);}
+
+  /* ── CARD ── */
+  .card{background:var(--white);border:1px solid var(--rule);padding:14px 14px 12px;}
+  .card-title{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .card-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--faint);margin-bottom:12px;}
+  .fnote{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--faint);padding-top:8px;border-top:1px solid var(--rule);margin-top:8px;line-height:1.6;}
+
+  /* ── SCORECARDS — single col mobile, 4-col desktop ── */
+  .sc-grid{display:flex;flex-direction:column;gap:10px;}
+  .scorecard{background:var(--white);border:1px solid var(--rule);padding:14px 14px 12px;}
+  .sc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
+  .sc-region{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .sc-countries{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--faint);}
+  .sc-score-wrap{text-align:right;flex-shrink:0;}
+  .sc-score{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;line-height:1;}
+  .sc-denom{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);}
+  .sc-track{height:4px;background:var(--rule);border-radius:2px;overflow:hidden;}
+  .sc-fill{height:100%;border-radius:2px;}
+
+  /* ── TABLE ── */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{width:100%;border-collapse:collapse;min-width:280px;}
+  thead tr{border-bottom:1.5px solid var(--ink);}
+  th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);padding:0 6px 8px;text-align:right;font-weight:400;}
+  th:first-child{text-align:left;padding-left:0;}
+  td{padding:8px 6px;font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:right;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+  td:first-child{text-align:left;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;padding-left:0;}
+  tr:last-child td{border-bottom:none;}
+  .best{font-weight:700;}
+  .up{color:#1a6b3a;font-weight:600;}
+  .dn{color:#9a2020;font-weight:600;}
+  .rdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;flex-shrink:0;}
+
+  /* ── QUESTIONS ── */
+  .q-section{background:var(--white);border:1px solid var(--rule);border-top:3px solid var(--ink);padding:16px 14px;}
+  .q-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:14px;}
+  .q-block{margin-bottom:18px;}
+  .q-block:last-child{margin-bottom:0;}
+  .q-num{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;}
+  .q-text{font-family:'IBM Plex Serif',serif;font-size:15px;line-height:1.35;margin-bottom:10px;}
+  .q-opts{display:flex;flex-direction:column;gap:7px;}
+  .q-opt{font-size:12px;padding:10px 12px;border:1px solid var(--rule);color:var(--mid);background:var(--bg);font-weight:500;line-height:1.3;}
+  .q-opt.we{border-color:var(--we);color:var(--we);background:var(--we-lt);}
+  .q-opt.la{border-color:var(--la);color:var(--la);background:var(--la-lt);}
+  .q-opt.ea{border-color:var(--ea);color:var(--ea);background:var(--ea-lt);}
+  .q-opt.me{border-color:var(--me);color:var(--me);background:var(--me-lt);}
+
+  /* ── DESKTOP ── */
+  @media(min-width:640px){
+    .header{padding:16px 28px 14px;}
+    .scenario{padding:14px 28px;}
+    .doc-title{font-size:22px;}
+    .page{padding:22px 28px 60px;max-width:1060px;margin:0 auto;gap:18px;}
+    .sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .two-col{display:grid;grid-template-columns:3fr 2fr;gap:14px;}
+    .two-col .card{margin-bottom:0;}
+    .two-eq{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .two-eq .card{margin-bottom:0;}
+    .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+    .q-block{margin-bottom:0;}
+    .q-opts{flex-direction:row;flex-wrap:wrap;}
+    .q-opt{flex:1 1 140px;}
+    .q-section{padding:20px 22px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hd-left">
+    <div class="doc-type">Análise de Investimento · Relatório Mundial da Felicidade 2025</div>
+    <div class="doc-title">Dados de Bem-Estar Regional 2011–2024</div>
+  </div>
+  <div class="badge">DASHBOARD I</div>
+</div>
+
+<div class="scenario">
+  <div class="sc-label">Cenário</div>
+  É consultor(a) de uma fundação global de desenvolvimento que vai distribuir um <strong>fundo de investimento de €200M em bem-estar</strong> por quatro regiões do mundo. A fundação apoia programas nacionais plurianuais. Analise os dados abaixo e responda às duas perguntas.
+</div>
+
+<div class="page">
+
+  <!-- 01 SCORECARDS -->
+  <div class="sec-hd">01 — Resumo Regional · Pontuação Média de Felicidade 2024</div>
+  <div class="sc-grid">
+    <div class="scorecard">
+      <div class="sc-top">
+        <div><div class="sc-region" style="color:var(--we)">🌍 Europa Ocidental</div><div class="sc-countries">16 países · FIN, DEU, FRA +13</div></div>
+        <div class="sc-score-wrap"><span class="sc-score" style="color:var(--we)">6.97</span><span class="sc-denom">/10</span></div>
+      </div>
+      <div class="sc-track"><div class="sc-fill" style="width:100%;background:var(--we)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-top">
+        <div><div class="sc-region" style="color:var(--la)">🌎 América Latina</div><div class="sc-countries">17 países · BRA, MEX, ARG +14</div></div>
+        <div class="sc-score-wrap"><span class="sc-score" style="color:var(--la)">6.33</span><span class="sc-denom">/10</span></div>
+      </div>
+      <div class="sc-track"><div class="sc-fill" style="width:90.8%;background:var(--la)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-top">
+        <div><div class="sc-region" style="color:var(--ea)">🌏 Ásia Oriental</div><div class="sc-countries">12 países · JPN, SGP, CHN +9</div></div>
+        <div class="sc-score-wrap"><span class="sc-score" style="color:var(--ea)">6.12</span><span class="sc-denom">/10</span></div>
+      </div>
+      <div class="sc-track"><div class="sc-fill" style="width:87.8%;background:var(--ea)"></div></div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-top">
+        <div><div class="sc-region" style="color:var(--me)">🌍 M. East & N. Africa</div><div class="sc-countries">15 países · UAE, ISR, MAR +12</div></div>
+        <div class="sc-score-wrap"><span class="sc-score" style="color:var(--me)">5.33</span><span class="sc-denom">/10</span></div>
+      </div>
+      <div class="sc-track"><div class="sc-fill" style="width:76.5%;background:var(--me)"></div></div>
+    </div>
+  </div>
+
+  <!-- 02 DIMENSIONS -->
+  <div class="sec-hd">02 — Dimensões de Bem-Estar & Tendência Histórica</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Seis Dimensões de Bem-Estar por Região — 2024</div>
+      <div class="card-sub">Pontuação média regional por dimensão · gráfico radar</div>
+      <canvas id="radarChart"></canvas>
+      <div class="fnote">MENA = Médio Oriente & Norte de África · Valor mais alto = maior contribuição para a felicidade · ★ = líder</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pontuações por Dimensão — 2024</div>
+      <div class="card-sub">★ = pontuação mais alta entre as quatro regiões</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Dimensão</th><th>W.EU</th><th>LAT</th><th>E.AS</th><th>MENA</th></tr></thead>
+          <tbody>
+            <tr><td>GDP p.c.</td><td class="best" style="color:var(--we)">1.81★</td><td>1.36</td><td>1.52</td><td>1.40</td></tr>
+            <tr><td>Social</td><td class="best" style="color:var(--we)">1.65★</td><td>1.47</td><td>1.48</td><td>1.25</td></tr>
+            <tr><td>Health</td><td class="best" style="color:var(--we)">0.85★</td><td>0.55</td><td>0.64</td><td>0.60</td></tr>
+            <tr><td>Freedom</td><td class="best" style="color:var(--we)">0.88★</td><td>0.85</td><td>0.84</td><td>0.66</td></tr>
+            <tr><td>Generosity</td><td>0.14</td><td>0.07</td><td class="best" style="color:var(--ea)">0.14★</td><td>0.10</td></tr>
+            <tr><td>Low Corrupt.</td><td class="best" style="color:var(--we)">0.32★</td><td>0.11</td><td>0.16</td><td>0.14</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fnote">Europa Oc. e Ásia Oriental empatadas em Generosidade com 0.14</div>
+    </div>
+  </div>
+
+  <!-- 03 TREND + CHANGE TABLE -->
+  <div class="two-eq">
+    <div class="card">
+      <div class="card-title">Tendência da Pontuação de Felicidade — 2011 a 2024</div>
+      <div class="card-sub">Médias regionais · período de 13 anos</div>
+      <canvas id="trendChart"></canvas>
+      <div class="fnote">2013 não disponível · MENA = Médio Oriente & Norte de África (tracejado)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Variação da Pontuação — 2011 vs. 2024</div>
+      <div class="card-sub">Variação absoluta na pontuação média de felicidade</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Região</th><th>2011</th><th>2024</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rdot" style="background:var(--we)"></span>W. Europe</td><td>7.06</td><td class="best" style="color:var(--we)">6.97</td><td class="dn">−0.09</td></tr>
+            <tr><td><span class="rdot" style="background:var(--la)"></span>Latin Am.</td><td>5.98</td><td style="color:var(--la)">6.33</td><td class="up">+0.34</td></tr>
+            <tr><td><span class="rdot" style="background:var(--ea)"></span>East Asia</td><td>5.49</td><td style="color:var(--ea)">6.12</td><td class="up best">+0.62</td></tr>
+            <tr><td><span class="rdot" style="background:var(--me)"></span>MENA</td><td>5.61</td><td style="color:var(--me)">5.33</td><td class="dn">−0.28</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fnote">MENA = Médio Oriente & Norte de África</div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="q-section">
+    <div class="q-label">03 — Perguntas de Decisão</div>
+    <div class="q-grid">
+      <div class="q-block">
+        <div class="q-num">Pergunta 1 de 2</div>
+        <div class="q-text">Qual região deve receber a <strong>maior parte</strong> do fundo de investimento de €200M?</div>
+        <div class="q-opts">
+          <div class="q-opt we">🌍 Europa Ocidental</div>
+          <div class="q-opt la">🌎 América Latina</div>
+          <div class="q-opt ea">🌏 Ásia Oriental</div>
+          <div class="q-opt me">🌍 Médio Oriente & N. África</div>
+        </div>
+      </div>
+      <div class="q-block">
+        <div class="q-num">Pergunta 2 de 2</div>
+        <div class="q-text">Qual região demonstra o <strong>maior potencial</strong> de melhoria do bem-estar a longo prazo?</div>
+        <div class="q-opts">
+          <div class="q-opt we">🌍 Europa Ocidental</div>
+          <div class="q-opt la">🌎 América Latina</div>
+          <div class="q-opt ea">🌏 Ásia Oriental</div>
+          <div class="q-opt me">🌍 Médio Oriente & N. África</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WE='#1d4e7a',LA='#1a6b3a',EA='#7a4500',ME='#6b1a50';
+
+new Chart(document.getElementById('radarChart'),{
+  type:'radar',
+  data:{
+    labels:['PIB p.c.','Apoio Social','Saúde','Liberdade','Generosidade','Baixa Corrupção'],
+    datasets:[
+      {label:'Europa Oc.',data:[1.81,1.65,0.85,0.88,0.14,0.32],borderColor:WE,backgroundColor:'rgba(29,78,122,.08)',borderWidth:2,pointRadius:3,pointBackgroundColor:WE},
+      {label:'América Latina',data:[1.36,1.47,0.55,0.85,0.07,0.11],borderColor:LA,backgroundColor:'rgba(26,107,58,.08)',borderWidth:2,pointRadius:3,pointBackgroundColor:LA},
+      {label:'Ásia Oriental',data:[1.52,1.48,0.64,0.84,0.14,0.16],borderColor:EA,backgroundColor:'rgba(122,69,0,.08)',borderWidth:2,pointRadius:3,pointBackgroundColor:EA},
+      {label:'MENA',data:[1.40,1.25,0.60,0.66,0.10,0.14],borderColor:ME,backgroundColor:'rgba(107,26,80,.08)',borderWidth:2,pointRadius:3,pointBackgroundColor:ME,borderDash:[4,2]}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{position:'bottom',labels:{font:{family:'IBM Plex Mono',size:9},boxWidth:12,padding:8,color:'#5a5a5a'}}},
+    scales:{r:{min:0,max:2.0,ticks:{stepSize:0.5,font:{family:'IBM Plex Mono',size:8},color:'#9a9a9a',backdropColor:'transparent'},grid:{color:'#eee'},pointLabels:{font:{family:'IBM Plex Sans',size:10},color:'#5a5a5a'}}}}
+});
+
+const yrs=[2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+new Chart(document.getElementById('trendChart'),{
+  type:'line',
+  data:{labels:yrs,datasets:[
+    {label:'Europa Oc.',data:[7.06,7.00,6.94,6.93,6.93,6.98,7.05,7.11,7.13,7.11,7.05,6.98,6.97],borderColor:WE,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3},
+    {label:'América Lat.',data:[5.98,6.17,6.22,6.20,6.16,6.15,6.16,6.16,6.08,6.02,6.03,6.19,6.33],borderColor:LA,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3},
+    {label:'Ásia Oriental',data:[5.49,5.68,5.75,5.81,5.82,5.79,5.69,5.77,5.83,5.90,5.95,6.04,6.12],borderColor:EA,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3},
+    {label:'MENA',data:[5.61,5.51,5.52,5.61,5.57,5.51,5.46,5.42,5.37,5.27,5.11,5.31,5.33],borderColor:ME,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3,borderDash:[5,3]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{position:'bottom',labels:{font:{family:'IBM Plex Mono',size:9},boxWidth:12,padding:8,color:'#5a5a5a'}}},
+    scales:{x:{ticks:{font:{family:'IBM Plex Mono',size:8},color:'#9a9a9a',maxRotation:45,maxTicksLimit:7},grid:{color:'#f0f0f0'}},
+      y:{min:4.8,max:7.5,ticks:{font:{family:'IBM Plex Mono',size:9},color:'#9a9a9a',stepSize:.5},grid:{color:'#f0f0f0'}}}}
+});
+</script>
+</body>
+</html>

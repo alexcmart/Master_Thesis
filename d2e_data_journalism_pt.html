@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bem-Estar Regional — Jornalismo de Dados</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#111;--mid:#555;--faint:#999;
+    --rule:#e4e4e4;--bg:#f8f8f6;--white:#fff;
+    --we:#1d4e7a;--la:#1a6b3a;--ea:#905010;--me:#7a1a58;
+    --we-lt:#ddeaf5;--la-lt:#d5eedd;--ea-lt:#f8ead5;--me-lt:#f5d5ec;
+    --accent:#d44000;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;}
+
+  /* ── MASTHEAD ── */
+  .masthead{background:var(--white);border-bottom:2px solid var(--ink);padding:14px 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .pub-name{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);}
+  .pub-badge{font-family:'DM Mono',monospace;font-size:9px;background:var(--accent);color:#fff;padding:3px 9px;white-space:nowrap;}
+
+  /* ── SCENARIO ── */
+  .scenario{background:var(--white);border-bottom:1px solid var(--rule);padding:12px 16px;font-size:13px;color:var(--mid);line-height:1.65;}
+  .sc-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;}
+
+  /* ── PAGE ── */
+  .page{padding:0 0 60px;}
+
+  /* ── HERO ── */
+  .hero{background:var(--ink);color:#f5f5f0;padding:22px 16px 20px;}
+  .hero-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#888;margin-bottom:12px;}
+  .hero-hed{font-family:'Fraunces',serif;font-size:24px;line-height:1.18;font-weight:900;color:#f5f5f0;margin-bottom:14px;}
+  .hero-hed em{font-style:italic;font-weight:700;color:#f0d080;}
+  .hero-deck{font-size:13px;color:#aaa8a0;line-height:1.65;margin-bottom:18px;}
+
+  /* ── CALLOUT BOXES — 2x2 on mobile ── */
+  .callouts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+  .callout{border:1px solid rgba(255,255,255,.12);padding:12px 12px 10px;background:rgba(255,255,255,.04);}
+  .callout-region{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+  .callout-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
+  .callout-desc{font-size:11px;color:#aaa8a0;line-height:1.45;}
+  .callout.we{border-color:rgba(29,78,122,.6);}
+  .callout.la{border-color:rgba(26,107,58,.6);}
+  .callout.ea{border-color:rgba(144,80,16,.6);}
+  .callout.me{border-color:rgba(122,26,88,.6);}
+
+  /* ── HERO CHART ── */
+  .hero-chart-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:12px;margin-bottom:6px;}
+  .chart-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:8px;}
+  .hero-fnote{font-family:'DM Mono',monospace;font-size:9px;color:#666;line-height:1.55;}
+
+  /* ── SUPPORT SECTION ── */
+  .support{padding:16px 16px;}
+  .support-hed{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.3;}
+
+  /* ── DIM BARS ── */
+  .dim-card{background:var(--white);border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px;}
+  .dim-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-bottom:12px;}
+  .dim-group{margin-bottom:14px;}
+  .dim-group:last-child{margin-bottom:0;}
+  .dim-group-lbl{font-size:11px;font-weight:600;color:var(--mid);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--rule);}
+  .dim-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+  .dim-bar-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--faint);width:60px;flex-shrink:0;text-align:right;}
+  .dim-bar-track{flex:1;height:10px;background:#f0f0f0;border-radius:2px;overflow:hidden;}
+  .dim-bar-fill{height:100%;border-radius:2px;}
+  .dim-bar-val{font-family:'DM Mono',monospace;font-size:9px;color:var(--mid);width:28px;text-align:right;flex-shrink:0;}
+
+  /* ── SCATTER ── */
+  .scatter-card{background:var(--white);border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px;}
+
+  /* ── INSIGHT BOX ── */
+  .insight{background:var(--ink);color:#f5f5f0;padding:18px 16px;margin:0 0 0;}
+  .insight-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:#888;margin-bottom:10px;}
+  .insight-text{font-family:'Fraunces',serif;font-size:16px;line-height:1.4;font-weight:700;color:#f0f0e8;margin-bottom:12px;}
+  .insight-subs{display:flex;flex-direction:column;gap:6px;}
+  .insight-sub{font-size:12px;color:#aaa8a0;padding-left:14px;border-left:2px solid #444;line-height:1.55;}
+
+  /* ── QUESTIONS ── */
+  .q-section{background:var(--accent);padding:20px 16px;}
+  .q-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:16px;}
+  .q-block{margin-bottom:18px;}
+  .q-block:last-child{margin-bottom:0;}
+  .q-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:5px;}
+  .q-text{font-family:'Fraunces',serif;font-size:17px;font-weight:700;line-height:1.3;margin-bottom:10px;color:#fff;}
+  .q-opts{display:flex;flex-direction:column;gap:7px;}
+  .q-opt{font-family:'DM Mono',monospace;font-size:11px;padding:10px 12px;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);line-height:1.3;}
+
+  /* ── FNOTE ── */
+  .fnote{font-family:'DM Mono',monospace;font-size:9px;color:var(--faint);padding-top:7px;border-top:1px solid var(--rule);margin-top:7px;line-height:1.6;}
+
+  /* ── DESKTOP ── */
+  @media(min-width:640px){
+    .masthead{padding:14px 32px;}
+    .scenario{padding:14px 32px;}
+    .hero{padding:28px 32px 24px;}
+    .hero-hed{font-size:32px;}
+    .callouts{grid-template-columns:repeat(4,1fr);}
+    .support{padding:20px 32px;}
+    .support-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;}
+    .dim-card{margin-bottom:0;}
+    .scatter-card{margin-bottom:0;}
+    .insight{padding:22px 32px;}
+    .q-section{padding:24px 32px;}
+    .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+    .q-block{margin-bottom:0;}
+    .q-opts{flex-direction:row;flex-wrap:wrap;}
+    .q-opt{flex:1 1 auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="pub-name">Análise de Investimento em Bem-Estar · 2025</div>
+  <div class="pub-badge">DASHBOARD II — E</div>
+</div>
+
+<div class="scenario">
+  <div class="sc-label">O seu Papel</div>
+  É consultor(a) de uma fundação global de desenvolvimento que vai distribuir um <strong>fundo de investimento de €200M em bem-estar</strong> por quatro regiões do mundo: Europa Ocidental, América Latina, Ásia Oriental e Médio Oriente & Norte de África. Analise os dados e responda às perguntas abaixo.
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-kicker">Relatório Mundial da Felicidade 2025 · Quatro Regiões · 2011–2024</div>
+    <div class="hero-hed">A região que mais <em>melhorou</em> não é a região mais <em>feliz</em>.</div>
+    <div class="hero-deck">Treze anos de dados revelam um quadro complexo: trajetórias ascendentes, líderes em declínio, e um paradoxo riqueza-bem-estar que desafia as suposições mais simples.</div>
+
+    <div class="callouts">
+      <div class="callout we">
+        <div class="callout-region" style="color:#90c0e8">🌍 Europa Oc.</div>
+        <div class="callout-num" style="color:#90c0e8">6.97</div>
+        <div class="callout-desc">Pontuação mais alta em 2024 — mas a cair desde 2020</div>
+      </div>
+      <div class="callout la">
+        <div class="callout-region" style="color:#80d0a0">🌎 América Lat.</div>
+        <div class="callout-num" style="color:#80d0a0">+0.34</div>
+        <div class="callout-desc">Pontos ganhos desde 2011 — no máximo histórico</div>
+      </div>
+      <div class="callout ea">
+        <div class="callout-region" style="color:#f0c870">🌏 Ásia Oriental</div>
+        <div class="callout-num" style="color:#f0d080">+0.62</div>
+        <div class="callout-desc">Maior ganho de qualquer região — trajetória de crescimento mais rápido</div>
+      </div>
+      <div class="callout me">
+        <div class="callout-region" style="color:#d890c8">🌍 MENA</div>
+        <div class="callout-num" style="color:#d890c8">−0.28</div>
+        <div class="callout-desc">Única região a terminar abaixo da pontuação de 2011</div>
+      </div>
+    </div>
+
+    <div class="hero-chart-wrap">
+      <div class="chart-kicker">Tendência de felicidade · 2011–2024 · Médias regionais</div>
+      <canvas id="heroChart"></canvas>
+    </div>
+    <div class="hero-fnote">2013 não disponível · MENA = Médio Oriente & Norte de África (linha tracejada) · Fonte: Relatório Mundial da Felicidade 2025</div>
+  </div>
+
+  <!-- SUPPORT -->
+  <div class="support">
+    <div class="support-hed">Dois ângulos sobre os mesmos dados</div>
+    <div class="support-grid">
+      <div class="dim-card">
+        <div class="dim-title">Desempenho de cada região nas seis dimensões de bem-estar · 2024</div>
+
+        <div class="dim-group">
+          <div class="dim-group-lbl">PIB per capita</div>
+          <div class="dim-bar-row"><span class="dim-bar-label">W. Europe</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:90.5%;background:var(--we)"></div></div><span class="dim-bar-val">1.81</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">East Asia</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:76%;background:var(--ea)"></div></div><span class="dim-bar-val">1.52</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">MENA</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:70%;background:var(--me)"></div></div><span class="dim-bar-val">1.40</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">Latin Am.</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:68%;background:var(--la)"></div></div><span class="dim-bar-val">1.36</span></div>
+        </div>
+
+        <div class="dim-group">
+          <div class="dim-group-lbl">Social support</div>
+          <div class="dim-bar-row"><span class="dim-bar-label">W. Europe</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:100%;background:var(--we)"></div></div><span class="dim-bar-val">1.65</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">East Asia</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:89.7%;background:var(--ea)"></div></div><span class="dim-bar-val">1.48</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">Latin Am.</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:89.1%;background:var(--la)"></div></div><span class="dim-bar-val">1.47</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">MENA</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:75.8%;background:var(--me)"></div></div><span class="dim-bar-val">1.25</span></div>
+        </div>
+
+        <div class="dim-group">
+          <div class="dim-group-lbl">Freedom</div>
+          <div class="dim-bar-row"><span class="dim-bar-label">W. Europe</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:100%;background:var(--we)"></div></div><span class="dim-bar-val">0.88</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">Latin Am.</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:96.6%;background:var(--la)"></div></div><span class="dim-bar-val">0.85</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">East Asia</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:95.5%;background:var(--ea)"></div></div><span class="dim-bar-val">0.84</span></div>
+          <div class="dim-bar-row"><span class="dim-bar-label">MENA</span><div class="dim-bar-track"><div class="dim-bar-fill" style="width:75%;background:var(--me)"></div></div><span class="dim-bar-val">0.66</span></div>
+        </div>
+
+        <div class="fnote">Todas as barras escaladas ao valor máximo dentro de cada dimensão · ★ = líder por dimensão</div>
+      </div>
+
+      <div class="scatter-card">
+        <div class="dim-title">Pontuação do PIB vs. felicidade · 2024</div>
+        <canvas id="scatterChart"></canvas>
+        <div class="fnote">Linha tracejada = relação esperada · Acima = mais feliz do que a riqueza prevê · MENA tem PIB mais alto do que a América Latina mas pontua 1,0 ponto abaixo em felicidade</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHT BOX -->
+  <div class="insight">
+    <div class="insight-label">Insight-chave</div>
+    <div class="insight-text">Nenhuma região é a escolha óbvia — os dados suportam múltiplas decisões defensáveis.</div>
+    <div class="insight-subs">
+      <div class="insight-sub"><strong style="color:#90c0e8">Europa Oc.</strong> — pontuação mais alta, mais consistente, lidera 5 de 6 dimensões. Mas em declínio desde 2020.</div>
+      <div class="insight-sub"><strong style="color:#80d0a0">América Latina</strong> — supera o esperado economicamente. No máximo histórico. Forte coesão social.</div>
+      <div class="insight-sub"><strong style="color:#f0d080">Ásia Oriental</strong> — região de crescimento mais rápido. Reduziu a diferença para a América Latina de 0,49 para apenas 0,21 pontos.</div>
+      <div class="insight-sub"><strong style="color:#d890c8">Médio Oriente & N. África</strong> — maior necessidade. A riqueza não se traduz em bem-estar. A Liberdade é o seu ponto crítico.</div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="q-section">
+    <div style="max-width:1060px;margin:0 auto;">
+      <div class="q-eyebrow">A sua decisão — com base nos dados acima</div>
+      <div class="q-grid">
+        <div class="q-block">
+          <div class="q-num">Pergunta 1 de 2</div>
+          <div class="q-text">Qual região deve receber a maior parte do fundo de €200M?</div>
+          <div class="q-opts">
+            <div class="q-opt">🌍 Europa Ocidental</div>
+            <div class="q-opt">🌎 América Latina</div>
+            <div class="q-opt">🌏 Ásia Oriental</div>
+            <div class="q-opt">🌍 Médio Oriente & N. África</div>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Pergunta 2 de 2</div>
+          <div class="q-text">Qual região demonstra o maior potencial de melhoria do bem-estar a longo prazo?</div>
+          <div class="q-opts">
+            <div class="q-opt">🌍 Europa Ocidental</div>
+            <div class="q-opt">🌎 América Latina</div>
+            <div class="q-opt">🌏 Ásia Oriental</div>
+            <div class="q-opt">🌍 Médio Oriente & N. África</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WE='#5090c8',LA='#40b870',EA='#d09040',ME='#c060a8';
+
+const yrs=[2011,2012,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+new Chart(document.getElementById('heroChart'),{
+  type:'line',
+  data:{labels:yrs,datasets:[
+    {label:'Europa Oc.',data:[7.06,7.00,6.94,6.93,6.93,6.98,7.05,7.11,7.13,7.11,7.05,6.98,6.97],borderColor:WE,backgroundColor:'transparent',borderWidth:2.5,pointRadius:2.5,tension:0.3},
+    {label:'América Lat.',data:[5.98,6.17,6.22,6.20,6.16,6.15,6.16,6.16,6.08,6.02,6.03,6.19,6.33],borderColor:LA,backgroundColor:'transparent',borderWidth:2.5,pointRadius:2.5,tension:0.3},
+    {label:'Ásia Oriental',data:[5.49,5.68,5.75,5.81,5.82,5.79,5.69,5.77,5.83,5.90,5.95,6.04,6.12],borderColor:EA,backgroundColor:'transparent',borderWidth:2.5,pointRadius:2.5,tension:0.3},
+    {label:'MENA',data:[5.61,5.51,5.52,5.61,5.57,5.51,5.46,5.42,5.37,5.27,5.11,5.31,5.33],borderColor:ME,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3,borderDash:[5,3]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{position:'bottom',labels:{font:{family:'DM Mono',size:9},color:'#888',boxWidth:14,padding:8}}},
+    scales:{x:{ticks:{font:{family:'DM Mono',size:8},color:'#666',maxRotation:45,maxTicksLimit:7},grid:{color:'rgba(255,255,255,.07)'}},
+      y:{min:4.8,max:7.5,ticks:{font:{family:'DM Mono',size:9},color:'#666',stepSize:.5},grid:{color:'rgba(255,255,255,.07)'}}}}
+});
+
+const WE2='#1d4e7a',LA2='#1a6b3a',EA2='#905010',ME2='#7a1a58';
+new Chart(document.getElementById('scatterChart'),{
+  type:'scatter',
+  data:{datasets:[
+    {label:'Europa Oc.',data:[{x:1.81,y:6.97}],backgroundColor:WE2,pointRadius:14,pointHoverRadius:16},
+    {label:'América Lat.',data:[{x:1.36,y:6.33}],backgroundColor:LA2,pointRadius:14,pointHoverRadius:16},
+    {label:'Ásia Oriental',data:[{x:1.52,y:6.12}],backgroundColor:EA2,pointRadius:14,pointHoverRadius:16},
+    {label:'MENA',data:[{x:1.40,y:5.33}],backgroundColor:ME2,pointRadius:14,pointHoverRadius:16},
+    {label:'_ref',data:[{x:1.1,y:5.3},{x:1.95,y:7.4}],type:'line',borderColor:'#ccc',borderDash:[5,4],borderWidth:1.5,pointRadius:0,backgroundColor:'transparent',fill:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:true,position:'bottom',labels:{font:{family:'DM Mono',size:9},color:'#999',boxWidth:10,padding:8,filter:i=>i.text!=='_ref'}},
+      tooltip:{callbacks:{label:c=>`${c.dataset.label}: GDP ${c.parsed.x} · H ${c.parsed.y}`}}},
+    scales:{x:{min:1.1,max:2.0,title:{display:true,text:'GDP score',font:{family:'DM Mono',size:9},color:'#999'},ticks:{font:{family:'DM Mono',size:9},color:'#999'},grid:{color:'#f0f0f0'}},
+      y:{min:4.8,max:7.5,title:{display:true,text:'Happiness',font:{family:'DM Mono',size:9},color:'#999'},ticks:{font:{family:'DM Mono',size:9},color:'#999',stepSize:.5},grid:{color:'#f0f0f0'}}}}
+});
+</script>
+</body>
+</html>
